@@ -15,20 +15,20 @@ for gameMap in data:
     if (len(gameMapData) < 10):
         continue
     zeroToFive = 0
-    SixToEleven = 0
+    SixToTen = 0
     ElevenPlus = 0
     for game in gameMapData:
         if game <= 5:
             zeroToFive += 1
         elif game <= 10:
-            SixToEleven += 1
+            SixToTen += 1
         else:
             ElevenPlus += 1
     print("# " + mapTranslate[gameMap] + " (" +str(len(gameMapData))+ " games)")
     print("![](img/" + mapImgTranslate[gameMap]  + ")")
     print("```")
     print("0-5: " + str(int(100*round(zeroToFive / len(gameMapData), 2))) + "%")
-    print("6-11: " + str(int(100*round(SixToEleven / len(gameMapData), 2))) + "%")
+    print("6-10: " + str(int(100*round(SixToTen / len(gameMapData), 2))) + "%")
     print("11+: " + str(int(100*round(ElevenPlus / len(gameMapData), 2))) + "%")
     print("```")
         
