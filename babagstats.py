@@ -96,7 +96,7 @@ def genReadme(gameList):
     readme = open("README.md", "w")
     readme.write("# Forsen BabaG Stats\n")
     readme.write("##### " + str(len(gameList)) + " Games (" + datetime.strptime(getOldestGame(gameList)['started_at'], date_fmt).strftime('%b %d %Y') + " - " + datetime.strptime(getNewestGame(gameList)['started_at'], date_fmt).strftime('%b %d %Y') + ")\n")
-    for gameMap in killsPerMap:
+    for gameMap in sorted(killsPerMap, key=lambda k: len(killsPerMap[k]), reverse=True):
         gameMapData = killsPerMap[gameMap]
         if (len(gameMapData) < num_games_on_map_cutoff):
             continue
