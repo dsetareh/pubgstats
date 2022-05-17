@@ -3,7 +3,7 @@ from datetime import datetime
 
 # args
 parser = argparse.ArgumentParser(description='get forsen babag stats')
-parser.add_argument('--datasource', type=str, required=False, help='pull from [file, web] (default: file)', default='file')
+parser.add_argument('--datasource', type=str, required=False, help='pull from [file, api] (default: file)', default='file')
 parser.add_argument('--showStats', type=bool, required=False, help='output stats during runtime (default: True)', default=True)
 parser.add_argument('--genReadme', type=bool, required=False, help='generate readme (default: True)', default=True)
 parser.add_argument('--earliestyear', type=int, required=False, help='earliest year cutoff (default: 2021)', default=2021)
@@ -48,6 +48,7 @@ mapImgTranslate = {
 
 
 def pullLatestStats():
+    print(" == Pulling Latest Matches == ")
     url = 'https://pubg.op.gg/api/users/59fe352b55aa60000188a0fb/matches/recent?queue_size=1&mode=fpp&type=official'
     after = '&after='
     headers = {
@@ -62,10 +63,13 @@ def pullLatestStats():
         all_games.extend(response)
         num_matches = len(response)
         last_match_offset = response[-1]['offset']
+        print("Pulled " + str(num_matches) + " matches")
         time.sleep(requestTimeout) # just in case
 
     with open('fullGameData.json', 'w') as outfile:
         json.dump(all_games, outfile)
+    print("============================================================")
+
 
 def getKillsPerMap(gameList):
     killsPerMap = {
@@ -170,7 +174,7 @@ def loadSavedGameData():
         with open('fullGameData.json', 'r') as infile:
             return json.load(infile)
     except:
-        print("Error opening fullGameData.json, use --datasource=api to get new data")
+        print("Error opening fullGameData.json, use --datasource=api to pull new data")
         exit()
         
 def printStats(gameList):
@@ -197,9 +201,12 @@ print("============================================================")
 gameData = []
 if (args.datasource == 'file'):
     gameData = loadSavedGameData()
-elif (args.datasource == 'web'):
+elif (args.datasource == 'api'):
     pullLatestStats()
     gameData = loadSavedGameData()
+else:
+    print("Invalid data source, use --datasource=file or --datasource=api")
+    exit()
 
 gameData = filterGames(gameData)
 
