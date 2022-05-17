@@ -96,6 +96,7 @@ def genReadme(gameList):
     readme = open("README.md", "w")
     readme.write("# Forsen BabaG Stats\n")
     readme.write("##### " + str(len(gameList)) + " Games (" + datetime.strptime(getOldestGame(gameList)['started_at'], date_fmt).strftime('%b %d %Y') + " - " + datetime.strptime(getNewestGame(gameList)['started_at'], date_fmt).strftime('%b %d %Y') + ")\n")
+    readme.write("|Map|Image| 0-5 | 6-10 | 11+ |\n| :-: | :-: | :-: | :--: | :-: |\n")
     for gameMap in sorted(killsPerMap, key=lambda k: len(killsPerMap[k]), reverse=True):
         gameMapData = killsPerMap[gameMap]
         if (len(gameMapData) < num_games_on_map_cutoff):
@@ -110,23 +111,7 @@ def genReadme(gameList):
                 SixToTen += 1
             else:
                 ElevenPlus += 1
-        readme.write("## " + mapNameTranslate[gameMap] + " (" +
-                    str(len(gameMapData)) + " games)" + "\n")
-        readme.write("![](img/" + mapImgTranslate[gameMap] + ")" + "\n")
-        readme.write("```" + "\n")
-        readme.write("0-5: " +
-                    str(int(100 *
-                            round(zeroToFive / len(gameMapData), 2))) +
-                    "%" + "\n")
-        readme.write("6-10: " +
-                    str(int(100 *
-                            round(SixToTen / len(gameMapData), 2))) +
-                    "%" + "\n")
-        readme.write("11+: " +
-                    str(int(100 *
-                            round(ElevenPlus / len(gameMapData), 2))) +
-                    "%" + "\n")
-        readme.write("```" + "\n")
+        readme.write("| **" + mapNameTranslate[gameMap] + "<br>(" + str(len(gameMapData)) + " games)** | <img src=\"img/" + mapImgTranslate[gameMap] + "\" alt=\"drawing\" width=\"250\"/> | " + str(round(zeroToFive / len(gameMapData) * 100, 2)) + "% | " + str(round(SixToTen / len(gameMapData) * 100, 2)) + "% | " + str(round(ElevenPlus / len(gameMapData) * 100, 2)) + "% |\n")
     readme.close()
     print("============================================================")
 
