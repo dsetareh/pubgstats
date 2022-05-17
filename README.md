@@ -9,4 +9,7 @@
 | **Sanhok<br>(45 games)** | <img src="img/Sanhok-map.webp" width="250"/> | 80.0% | 15.56% | 4.44% |
 | **Haven<br>(35 games)** | <img src="img/Heaven_Minimap.webp" width="250"/> | 71.43% | 22.86% | 5.71% |
 | **Vikendi<br>(12 games)** | <img src="img/Vikendi_Map.webp" width="250"/> | 83.33% | 0.0% | 16.67% |
-<img src="data/killsPerWeekday.png" width="350"/> <img src="data/killsPerHour.png" width="350"/>
+
+|Kills By Weekday|Kills By Hour|
+| :-: | :-: |
+| <img src="data/killsPerWeekday.png" width="325"/> | <img src="data/killsPerHour.png" width="325"/> |

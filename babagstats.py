@@ -280,7 +280,7 @@ def genReadme(gameList):
                      "% | " +
                      str(round(ElevenPlus / len(gameMapData) * 100, 2)) +
                      "% |\n")
-    readme.write("<img src=\"data/killsPerWeekday.png\" width=\"350\"/> <img src=\"data/killsPerHour.png\" width=\"350\"/>\n")
+    readme.write("\n|Kills By Weekday|Kills By Hour|\n| :-: | :-: |\n| <img src=\"data/killsPerWeekday.png\" width=\"325\"/> | <img src=\"data/killsPerHour.png\" width=\"325\"/> |\n")
     readme.close()
     print("============================================================")
     plotKillsPerWeekday(getKillsPerWeekday(gameData))
