@@ -154,7 +154,7 @@ def getKillsPerWeekday(gameList):
     for game in gameList:
         curr_num_kills = game['participant']['stats']['combat']['kda']['kills']
         curr_game_kills_type = -1
-        if curr_num_kills <= 5:
+        if curr_num_kills <= 3:
             curr_game_kills_type = 0
         elif curr_num_kills <= 10:
             curr_game_kills_type = 1
@@ -181,8 +181,8 @@ def plotKillsPerWeekday(killsPerWeekday):
     x = np.arange(len(labels))
     width = 0.20
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-5')
-    rects2 = ax.bar(x - width / 2, type1games, width, label='6-10')
+    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-3')
+    rects2 = ax.bar(x - width / 2, type1games, width, label='4-10')
     rects3 = ax.bar(x + width / 2, type2games, width, label='11+')
     ax.set_ylabel('Percentage of Games')
     ax.set_title('Average # of Kills/Game by Weekday')
@@ -203,7 +203,7 @@ def getKillsPerHour(gameList):
         curr_game_hour = curr_game_date.hour
         curr_num_kills = game['participant']['stats']['combat']['kda']['kills']
         curr_game_kills_type = -1
-        if curr_num_kills <= 5:
+        if curr_num_kills <= 3:
             curr_game_kills_type = 0
         elif curr_num_kills <= 10:
             curr_game_kills_type = 1
@@ -225,8 +225,8 @@ def plotKillsPerHour(killsPerHour):
     x = np.arange(len(labels))
     width = 0.20
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-5')
-    rects2 = ax.bar(x - width / 2, type1games, width, label='6-10')
+    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-3')
+    rects2 = ax.bar(x - width / 2, type1games, width, label='4-10')
     rects3 = ax.bar(x + width / 2, type2games, width, label='11+')
     ax.set_ylabel('Percentage of Games')
     ax.set_title('Average # of Kills/Game by Stream Hour')
@@ -253,19 +253,19 @@ def genReadme(gameList):
         datetime.strptime(getNewestGame(gameList)['started_at'],
                           date_fmt).strftime('%b %d %Y') + ")\n")
     readme.write(
-        "|Map|Image| 0-5 | 6-10 | 11+ |\n| :-: | :-: | :-: | :--: | :-: |\n")
+        "|Map|Image| 0-3 | 4-10 | 11+ |\n| :-: | :-: | :-: | :--: | :-: |\n")
     for gameMap in sorted(killsPerMap,
                           key=lambda k: len(killsPerMap[k]),
                           reverse=True):
         gameMapData = killsPerMap[gameMap]
         if (len(gameMapData) < num_games_on_map_cutoff):
             continue
-        zeroToFive = 0
+        zeroToThree = 0
         SixToTen = 0
         ElevenPlus = 0
         for game in gameMapData:
-            if game <= 5:
-                zeroToFive += 1
+            if game <= 3:
+                zeroToThree += 1
             elif game <= 10:
                 SixToTen += 1
             else:
@@ -274,7 +274,7 @@ def genReadme(gameList):
                      str(len(gameMapData)) + " games)** | <img src=\"img/" +
                      mapImgTranslate[gameMap] +
                      "\" width=\"250\"/> | " +
-                     str(round(zeroToFive / len(gameMapData) * 100, 2)) +
+                     str(round(zeroToThree / len(gameMapData) * 100, 2)) +
                      "% | " +
                      str(round(SixToTen / len(gameMapData) * 100, 2)) +
                      "% | " +
