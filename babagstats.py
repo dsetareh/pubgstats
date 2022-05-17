@@ -46,6 +46,17 @@ parser.add_argument('--dpi',
                     required=False,
                     help='plot dpi (default: 600)',
                     default=600)
+parser.add_argument('--cutoff1',
+                    type=int,
+                    required=False,
+                    help='Grouping cutoff 1 (default: 3)',
+                    default=3)
+parser.add_argument('--cutoff2',
+                    type=int,
+                    required=False,
+                    help='Grouping cutoff 2 (default: 10)',
+                    default=10)
+
 parser.add_argument(
     '--numgamesonmap',
     type=int,
@@ -57,6 +68,8 @@ parser.add_argument('--requesttimeout',
                     required=False,
                     help='api request timeout (default: 0.1)',
                     default=0.1)
+
+
 args = parser.parse_args()
 
 plot_dpi = args.dpi
@@ -81,16 +94,29 @@ mapNameTranslate = {
 }
 
 mapImgTranslate = {
-    "Baltic_Main": "Pubg_erangel_new.jpg",
-    "Chimera_Main": "",  # dont think this is used anymore
-    "Desert_Main": "Miramar_EN.webp",
-    "DihorOtok_Main": "Vikendi_Map.webp",
-    "Erangel_Main": "Pubg_erangel_new.jpg",  # looks the same 2 me
-    "Heaven_Main": "Heaven_Minimap.webp",
-    "Range_Main": "",  # tutorial map
-    "Savage_Main": "Sanhok-map.webp",
-    "Summerland_Main": "Karakin_Map.webp",
-    "Tiger_Main": "taego.jpg"
+    "Baltic_Main": "Erangel.webp",
+    "Chimera_Main": "Paramo.webp",
+    "Desert_Main": "Miramar.webp",
+    "DihorOtok_Main": "Vikendi.webp",
+    "Erangel_Main": "Erangel.webp",
+    "Heaven_Main": "Haven.webp",
+    "Range_Main": "Range.webp",
+    "Savage_Main": "Sanhok.webp",
+    "Summerland_Main": "Karakin.webp",
+    "Tiger_Main": "Taego.webp"
+}
+
+maxPlayersPerMap = {
+    "Baltic_Main": 100,
+    "Chimera_Main": 64,
+    "Desert_Main": 100,
+    "DihorOtok_Main": 100,
+    "Erangel_Main": 100,
+    "Heaven_Main": 32,
+    "Range_Main": 1,
+    "Savage_Main": 100,
+    "Summerland_Main": 64,
+    "Tiger_Main": 100
 }
 
 
@@ -140,6 +166,14 @@ def getKillsPerMap(gameList):
             game['participant']['stats']['combat']['kda']['kills'])
     return killsPerMap
 
+def killCategory(numKills):
+    if numKills <= args.cutoff1:
+        return 0
+    elif numKills < args.cutoff2:
+        return 1
+    else:
+        return 2
+    
 
 def getKillsPerWeekday(gameList):
     killsPerWeekday = {
@@ -153,13 +187,7 @@ def getKillsPerWeekday(gameList):
     }
     for game in gameList:
         curr_num_kills = game['participant']['stats']['combat']['kda']['kills']
-        curr_game_kills_type = -1
-        if curr_num_kills <= 3:
-            curr_game_kills_type = 0
-        elif curr_num_kills <= 10:
-            curr_game_kills_type = 1
-        else:
-            curr_game_kills_type = 2
+        curr_game_kills_type = killCategory(curr_num_kills)
         killsPerWeekday[datetime.strptime(
             game['started_at'],
             date_fmt).strftime('%A')].append(curr_game_kills_type)
@@ -181,9 +209,9 @@ def plotKillsPerWeekday(killsPerWeekday):
     x = np.arange(len(labels))
     width = 0.20
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-3')
-    rects2 = ax.bar(x - width / 2, type1games, width, label='4-10')
-    rects3 = ax.bar(x + width / 2, type2games, width, label='11+')
+    rects1 = ax.bar(x - width * 1.5, type0games, width, label=f'0-{args.cutoff1}')
+    rects2 = ax.bar(x - width / 2, type1games, width, label=f'{args.cutoff1 + 1}-{args.cutoff2}')
+    rects3 = ax.bar(x + width / 2, type2games, width, label=f'{args.cutoff2 + 1}+')
     ax.set_ylabel('Percentage of Games')
     ax.set_title('Average # of Kills/Game by Weekday')
     ax.set_xticks(x, labels)
@@ -202,13 +230,7 @@ def getKillsPerHour(gameList):
         curr_game_date = datetime.strptime(game['started_at'], date_fmt)
         curr_game_hour = curr_game_date.hour
         curr_num_kills = game['participant']['stats']['combat']['kda']['kills']
-        curr_game_kills_type = -1
-        if curr_num_kills <= 3:
-            curr_game_kills_type = 0
-        elif curr_num_kills <= 10:
-            curr_game_kills_type = 1
-        else:
-            curr_game_kills_type = 2
+        curr_game_kills_type = killCategory(curr_num_kills)
         killsPerHour[curr_game_hour].append(curr_game_kills_type)
     return killsPerHour[18:23]  # streaming hours
 
@@ -225,9 +247,9 @@ def plotKillsPerHour(killsPerHour):
     x = np.arange(len(labels))
     width = 0.20
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width * 1.5, type0games, width, label='0-3')
-    rects2 = ax.bar(x - width / 2, type1games, width, label='4-10')
-    rects3 = ax.bar(x + width / 2, type2games, width, label='11+')
+    rects1 = ax.bar(x - width * 1.5, type0games, width, label=f'0-{args.cutoff1}')
+    rects2 = ax.bar(x - width / 2, type1games, width, label=f'{args.cutoff1 + 1}-{args.cutoff2}')
+    rects3 = ax.bar(x + width / 2, type2games, width, label=f'{args.cutoff2 + 1}+')
     ax.set_ylabel('Percentage of Games')
     ax.set_title('Average # of Kills/Game by Stream Hour')
     ax.set_xticks(x, labels)
@@ -253,32 +275,32 @@ def genReadme(gameList):
         datetime.strptime(getNewestGame(gameList)['started_at'],
                           date_fmt).strftime('%b %d %Y') + ")\n")
     readme.write(
-        "|Map|Image| 0-3 | 4-10 | 11+ |\n| :-: | :-: | :-: | :--: | :-: |\n")
+        f"|Map|Image| 0-{args.cutoff1} | {args.cutoff1 + 1}-{args.cutoff2} | {args.cutoff2 + 1}+ |\n| :-: | :-: | :-: | :--: | :-: |\n")
     for gameMap in sorted(killsPerMap,
                           key=lambda k: len(killsPerMap[k]),
                           reverse=True):
         gameMapData = killsPerMap[gameMap]
         if (len(gameMapData) < num_games_on_map_cutoff):
             continue
-        zeroToThree = 0
-        SixToTen = 0
-        ElevenPlus = 0
+        firstCutoff = 0
+        secondCutoff = 0
+        thirdCutoff = 0
         for game in gameMapData:
             if game <= 3:
-                zeroToThree += 1
+                firstCutoff += 1
             elif game <= 10:
-                SixToTen += 1
+                secondCutoff += 1
             else:
-                ElevenPlus += 1
+                thirdCutoff += 1
         readme.write("| **" + mapNameTranslate[gameMap] + "<br>(" +
-                     str(len(gameMapData)) + " games)** | <img src=\"img/" +
+                     str(len(gameMapData)) + f" games)**<br><sub>{maxPlayersPerMap[gameMap]} Players</sub>| <img src=\"img/" +
                      mapImgTranslate[gameMap] +
                      "\" width=\"250\"/> | " +
-                     str(round(zeroToThree / len(gameMapData) * 100, 2)) +
+                     str(round(firstCutoff / len(gameMapData) * 100, 2)) +
                      "% | " +
-                     str(round(SixToTen / len(gameMapData) * 100, 2)) +
+                     str(round(secondCutoff / len(gameMapData) * 100, 2)) +
                      "% | " +
-                     str(round(ElevenPlus / len(gameMapData) * 100, 2)) +
+                     str(round(thirdCutoff / len(gameMapData) * 100, 2)) +
                      "% |\n")
     readme.write("\n|Kills By Weekday|Kills By Hour|\n| :-: | :-: |\n| <img src=\"data/killsPerWeekday.png\" width=\"325\"/> | <img src=\"data/killsPerHour.png\" width=\"325\"/> |\n")
     readme.close()
