@@ -2,7 +2,9 @@ import json, requests, time, argparse
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+from mpl_interactions import ipyplot as iplt
 import numpy as np
+import seaborn as sns
 
 # args
 parser = argparse.ArgumentParser(description='get forsen babag stats')
@@ -31,6 +33,11 @@ parser.add_argument('--genKillsPerWeekday',
                     required=False,
                     help='generate KillsPerWeekday (default: False)',
                     default=False)
+parser.add_argument('--genAllKills',
+                    type=bool,
+                    required=False,
+                    help='generate all kills histogram (default: False)',
+                    default=False)
 parser.add_argument('--earliestyear',
                     type=int,
                     required=False,
@@ -57,6 +64,7 @@ parser.add_argument('--cutoff2',
                     help='Grouping cutoff 2 (default: 10)',
                     default=10)
 
+
 parser.add_argument(
     '--numgamesonmap',
     type=int,
@@ -79,6 +87,19 @@ num_games_on_map_cutoff = args.numgamesonmap
 requestTimeout = args.requesttimeout
 
 date_fmt = '%Y-%m-%dT%H:%M:%S+0000'
+
+allmaps = [
+    "Baltic_Main",
+    "Chimera_Main" ,
+    "Desert_Main" ,
+    "DihorOtok_Main" ,
+    "Erangel_Main" ,
+    "Heaven_Main" ,
+    "Range_Main" ,
+    "Savage_Main" ,
+    "Summerland_Main" ,
+    "Tiger_Main" 
+]
 
 mapNameTranslate = {
     "Baltic_Main": "Erangel (Remastered)",
@@ -221,6 +242,69 @@ def plotKillsPerWeekday(killsPerWeekday):
     ax.bar_label(rects3, padding=3)
     fig.tight_layout()
     plt.savefig('data/killsPerWeekday.png', dpi=plot_dpi)
+    print("============================================================")
+
+
+def plotAllKills(gameList):
+    gameinfo = []
+    for g in gameList:
+        kills = g['participant']['stats']['combat']['kda']['kills']
+        time = datetime.strptime(g['started_at'], date_fmt)
+        time = (time.hour * 60) + time.minute
+        mapn = g['map_name']
+        gameinfo.append({'kills': kills, "time": time, "map": mapn})
+    
+    kills = []
+    time = []
+    maps = []
+    colors = []
+    for g in gameinfo:
+        kills.append(g['kills'])
+        time.append(g['time'])
+        maps.append(g['map'])
+        colors.append(allmaps.index(g['map']))
+    
+    kills = np.array(kills)
+    time = np.array(time)
+    maps = np.array(maps)
+    colors = np.array(colors)
+    
+    sns.histplot(x=kills, data=gameinfo, kde=True, hue=maps)
+    
+    def f_x(xrange, **kwargs):
+        return np.linspace("range", min(kills), max(), step)
+    def f_y(xrange, **kwargs):
+        return np.linspace("range", min(kills), max(), step)
+
+    controls = iplt.plot(f_x, f_y, xrange=("r", -1, 3), tau=(5, 10))
+
+    plt.show()
+    
+        
+        
+    # print('max: ' + str(max(kills)))
+    # print('max: ' + str(max(time)))
+    # print('min: ' + str(min(kills)))
+    # print('min: ' + str(min(time)))
+
+    # kills_hist = [0] * (max(kills) - min(kills))
+    # time_hist = [0] * (max(time) - min(time))
+    
+    # for g in gameinfo:
+    #     kills_hist[g['kills']] += 1
+    #     time_hist[g['time']] += 1
+
+    # fig, ax = plt.subplots()
+
+    # ax.set_ylabel('kills')
+    # ax.set_xlabel('time')
+    # ax.set_title('kills vs time')
+    # # ax.set_xticks(x, labels)
+    # ax.legend()
+    # plt.scatter(time, kills, c=colors, alpha=0.5)
+    # fig.tight_layout()
+    # plt.show()
+    # plt.savefig('data/allkills.png', dpi=plot_dpi)
     print("============================================================")
 
 
@@ -409,3 +493,6 @@ if (args.genKillsPerHour):
 
 if (args.genKillsPerWeekday):
     plotKillsPerWeekday(getKillsPerWeekday(gameData))
+
+if (args.genAllKills):
+    plotAllKills(gameData)
